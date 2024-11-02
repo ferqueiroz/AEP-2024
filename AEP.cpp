@@ -11,10 +11,10 @@ FILE *arquivo;
 int op, erro = 0, tot = 0;
 char nomes[50][20],senhas[50][15];
 //-----------------------------------------------------------------------------------------------------------
-// declaraÁ„o das funÁıes
+// declara√ß√£o das fun√ß√µes
 int verificasenha(char* s);
 void criptografia(char* n, char* s);
-void editarnumero(int n, int o);
+void editarnumero(int n);
 void descriptografar();
 void armazenarnomes();
 void organizanomes();
@@ -27,19 +27,20 @@ void editar();
 void menu();
 //-----------------------------------------------------------------------------------------------------------
 int main(){
-	const char* frase = "Obrigado pela sua participaÁ„o, espero que tenha gostado.";
+	const char* frase = "Obrigado pela sua participa√ß√£o, espero que tenha gostado.";
 	const char* carinha = "=)";
 	int i;
-	setlocale(LC_ALL,"portuguese");
-	armazenarnomes();
+	setlocale(LC_ALL,"portuguese"); // seta a linguagem pra portugues, dai da pra usar acento e esses bglh
+	armazenarnomes(); // vai armazenar os nomes que est√£o salvos no arquivo
 	do{
 		organizanomes();
 		menu();
 	} while(op!= '0');
-	gravarnomes();
+	gravarnomes(); // vai gravar os nomes que est√£o dentro do vetor
 	system("cls");
 	i=0;
 	gotoxy(35,15);
+	// vai escrever a frase final parecendo q esta sendo escrito m√≥ massa
 	while(frase[i] != '\0'){
 		printf("%c", frase[i]);
 		fflush(stdout);
@@ -61,7 +62,7 @@ int main(){
 	return 0;
 }
 //-----------------------------------------------------------------------------------------------------------
-int verificasenha(char* s){ // vai verificar se a senha est· nas regras
+int verificasenha(char* s){ // vai verificar se a senha est√° nas regras
 	int i, minuscula, maiuscula, numero, especial = 0;
 
 	if (strlen(s) < 8 || strlen(s) > 12){ // c nao tiver dentro desse limite nem entra
@@ -75,7 +76,7 @@ int verificasenha(char* s){ // vai verificar se a senha est· nas regras
 		if (ispunct(s[i])) especial = 1;
 	}
 	
-	if(minuscula == 1 && maiuscula == 1 && numero == 1 && especial == 1) return 1; // sÛ vai passar c tiver todos 1
+	if(minuscula == 1 && maiuscula == 1 && numero == 1 && especial == 1) return 1; // s√≥ vai passar c tiver todos 1
 	else {
 		erro++;
 		return 0;
@@ -85,8 +86,8 @@ int verificasenha(char* s){ // vai verificar se a senha est· nas regras
 void gravarnomes(){ // gravar os nomes alterados no vetor dentro do txt
 	arquivo = fopen("Usuarios.txt", "w");
 	for(int x = 0; x < tot; x++){
-		if(x == 0) fprintf(arquivo, "%s\n%s", nomes[0], senhas[0]);
-		else fprintf(arquivo, "\n%s\n%s", nomes[x], senhas[x]);
+		if(x == 0) fprintf(arquivo, "%s\n%s", nomes[0], senhas[0]); // c for o primeiro a ser escrito, ele nao vai pular a linha antes
+		else fprintf(arquivo, "\n%s\n%s", nomes[x], senhas[x]); // c nao foi o primeiro, ele vai pular antes, pq c ficar o \n na senha final, fica com um espa√ßo sobrando
 	}
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -94,11 +95,18 @@ void armazenarnomes(){ // armazena os nomes nas variaveis
 	char linha[20];
 	arquivo = fopen("Usuarios.txt", "r");
 	tot = 0;
-	while(!feof(arquivo)){
+	
+	if (arquivo == NULL){ // esse bglh √© quando o arquivo nao existe
+		arquivo = fopen("Usuarios.txt", "w"); // c o arquivo nao existir ele vai criar um
+		fclose(arquivo);
+		return;
+	}
+	
+	while(!feof(arquivo)){ // passa o txt linha por linha
 		fgets(nomes[tot], 100, arquivo);
-		nomes[tot][strcspn(nomes[tot], "\n")] = '\0'; // aqui ele fecha finaliza o vetor com \0
+		nomes[tot][strcspn(nomes[tot], "\n")] = '\0'; // aqui ele finaliza o vetor com \0
 		fgets(senhas[tot], 100, arquivo);
-		senhas[tot][strcspn(senhas[tot], "\n")] = '\0';
+		senhas[tot][strcspn(senhas[tot], "\n")] = '\0'; // mema coisa
 		tot++; // vai aumentar o total de nomes
 	}
 	fclose(arquivo);
@@ -125,14 +133,17 @@ void organizanomes(){ // vai organizar os nomes por ordem alfabetica
 void criptografia(char* n, char* s){ // vai criptografar o nome e a senha e armazenar
 	int i;
 	char criptonome[20], criptosenha[15];
+	// vai pegar cada caracter do nome e aumentar 5 caracteres a mais
 	for (i = 0; i < strlen(n); i++) {
         criptonome[i] = n[i] + SHIFT;
-    }
-    criptonome[i] = '\0';
+    	}
+    	criptonome[i] = '\0';
+	// mema coisa s√≥ q na senha 
 	for (i = 0; i < strlen(s); i++) {
         criptosenha[i] = s[i] + SHIFT;
     }
     criptosenha[i] = '\0';
+	// aqui ele vai armazenar o nome e a senha no ultimo vetor e aumentar o total de usuarios
     strcpy(nomes[tot], criptonome);
     strcpy(senhas[tot], criptosenha);
     tot++;
@@ -141,102 +152,103 @@ void criptografia(char* n, char* s){ // vai criptografar o nome e a senha e arma
 void criar(){ // criar novos usuarios
 	char nome[20],senha[15],repitasenha[15],opcao;
 	do{
-	system("cls");
-	textcolor(BLUE);
-	printf("\n				     ____   ______ ______ ____ _____ ______ ____   ____ \n");
-	printf("				    / __ | / ____// ____//  _// ___//_  __// __ | / __ |\n");
-	printf("				   / /_/ // __/  / / __  / /  |__ |  / /  / /_/ // / / /\n");
-	printf("				  / _  _// /___ / /_/ /_/ /  ___/ / / /  / _  _// /_/ / \n");
-	printf("				 /_/ |_|/_____/ |____//___/ /____/ /_/  /_/ |_| |____/  \n");
-	printf("\n\n\n\n\n\n\n\n\n");
-	textcolor(WHITE);
-	gotoxy(34,15);
-	printf("Nome: ");
-	gotoxy(33,16);
-	printf("Senha: ");
-	gotoxy(26,17);
-	printf("Repita Senha: ");
-	do{
-		gotoxy(40,15);
-    	printf("                                                              "); //limpa o campo
-    	gotoxy(40,15);
-		gets(nome);
-	} while (strlen(nome) == 0 || strlen(nome) >= 20);
-	nome[strcspn(nome, "\n")] = '\0';
-	
-	do{ // fica repitindo a senha no mesmo lugar
-       gotoxy(40,16);
-       printf("                "); //limpa o campo
-       gotoxy(40,16);
-       gets(senha);
-       if(verificasenha(senha) == 0){ // c nao tiver os quisitos ele vai aparecer a mensagem
-			gotoxy(26,17);
-			printf("                                                                ");
-			gotoxy(7,17);
-			textcolor(RED);
-    		printf("Deve conter entre 8 a 12, caracteres um caracter especial, um numero, uma letra maiuscula e uma minuscula.");
-    		gotoxy(26,18); // aqui ele vai abaixar o repita senha
-    		textcolor(WHITE);
-    		printf("Repita senha: ");
-	   }
-    } while (verificasenha(senha) == 0);
-    senha[strcspn(senha, "\n")] = '\0';
-    
-	if(erro == 0){ // c nao teve nenhum erro ele vai direto
+		system("cls");
+		textcolor(WHITE);
+		printf("Envie 0 para voltar.\n");
+		textcolor(BLUE);
+		printf("				     ____   ______ ______ ____ _____ ______ ____   ____ \n");
+		printf("				    / __ | / ____// ____//  _// ___//_  __// __ | / __ |\n");
+		printf("				   / /_/ // __/  / / __  / /  |__ |  / /  / /_/ // / / /\n");
+		printf("				  / _  _// /___ / /_/ /_/ /  ___/ / / /  / _  _// /_/ / \n");
+		printf("				 /_/ |_|/_____/ |____//___/ /____/ /_/  /_/ |_| |____/  \n");
+		printf("\n\n\n\n\n\n\n\n\n");
+		textcolor(WHITE);
+		gotoxy(34,15);
+		printf("Nome: ");
+		gotoxy(33,16);
+		printf("Senha: ");
+		gotoxy(26,17);
+		printf("Repita Senha: ");
 		do{
-    		gotoxy(40,17);
-    		printf("                                                                ");
-    		gotoxy(40,17);
-    		gets(repitasenha);
-    	} while (strcmp(repitasenha,senha) != 0);
-    } else { // c teve, vai abaixar a linha para pegar o repita senha
-    	do{
-    		gotoxy(40,18);
-    		printf("                                                                ");
-    		gotoxy(40,18);
-    		gets(repitasenha);
-    	} while (strcmp(repitasenha,senha) != 0);
-	}
-	
-	criptografia(nome,senha); // vai chama a funÁao pra criptografar e armazenar
-	system("cls");
-	textcolor(GREEN);
-	gotoxy(10,11);
-	printf("    ______ ___     ____   ___    _____ ______ ____   ____       ______ ______ ____ ______ ____    __\n");
-	gotoxy(10,12);
-	printf("  / ____//   |   / __ | /   |  / ___//_  __// __ | / __ |     / ____// ____//  _//_  __// __ |   / /\n");
-	gotoxy(10,13);
-	printf(" / /    / /| |  / / / // /| |  |__ |  / /  / /_/ // / / /    / /_   / __/   / /   / /  / / / /  / / \n");
-	gotoxy(10,14);
-	printf("/ /___ / ___ | / /_/ // ___ | ___/ / / /  / _  _// /_/ /    / __/  / /___ _/ /   / /  / /_/ /  /_/  \n");
-	gotoxy(10,15);
-	printf("|____//_/  |_|/_____//_/  |_|/____/ /_/  /_/ |_| |____/    /_/    /_____//___/  /_/   |____/  (_)   \n");
-	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	sleep(1); // delay de 1 segundo
-	textcolor(WHITE);
-	printf("Deseja continuar(S/N)? ");
-	scanf("%c",&opcao);
-	} while(toupper(opcao) != 'N');
+			gotoxy(40,15);
+	    	printf("                                                              "); //limpa o campo
+	    	gotoxy(40,15);
+			gets(nome);
+		} while (strlen(nome) == 0 || strlen(nome) >= 20);
+		nome[strcspn(nome, "\n")] = '\0';
+		if(nome[0] == '0') return;
+		do{ // fica repitindo a senha no mesmo lugar
+	       gotoxy(40,16);
+	       printf("                "); //limpa o campo
+	       gotoxy(40,16);
+	       gets(senha);
+	       if(senha[0] == '0') return;
+	       if(verificasenha(senha) == 0){ // c nao tiver os quisitos ele vai aparecer a mensagem
+				gotoxy(26,17);
+				printf("                                                                ");
+				gotoxy(7,17);
+				textcolor(RED);
+	    		printf("Deve conter entre 8 a 12, caracteres um caracter especial, um numero, uma letra maiuscula e uma minuscula.");
+	    		gotoxy(26,18); // aqui ele vai abaixar o repita senha
+	    		textcolor(WHITE);
+	    		printf("Repita senha: ");
+		   }
+	    } while (verificasenha(senha) == 0);
+	    senha[strcspn(senha, "\n")] = '\0';
+	    
+		if(erro == 0){ // c nao teve nenhum erro ele vai direto
+			do{
+	    		gotoxy(40,17);
+	    		printf("                                                                ");
+	    		gotoxy(40,17);
+	    		gets(repitasenha);
+	    		if(repitasenha[0] == '0') return;
+	    	} while (strcmp(repitasenha,senha) != 0);
+	    } else { // c teve, vai abaixar a linha para pegar o repita senha
+	    	do{
+	    		gotoxy(40,18);
+	    		printf("                                                                ");
+	    		gotoxy(40,18);
+	    		gets(repitasenha);
+	    		if(repitasenha[0] == '0') return;
+	    	} while (strcmp(repitasenha,senha) != 0);
+		}
+		
+		criptografia(nome,senha); // vai chama a fun√ßao pra criptografar e armazenar
+		system("cls");
+		textcolor(GREEN);
+		
+		printf("\n\n\n\n\n\n\n\n\n\n\n            ______ ___     ____   ___    _____ ______ ____   ____      ______ ______ ____ ______ ____     __\n");
+		printf("           / ____//   |   / __ | /   |  / ___//_  __// __ | / __ |    / ____// ____//  _//_  __// __ |   / /\n");
+		printf("          / /    / /| |  / / / // /| |  |__ |  / /  / /_/ // / / /   / /_   / __/   / /   / /  / / / /  / / \n");
+		printf("         / /___ / ___ | / /_/ // ___ | ___/ / / /  / _  _// /_/ /   / __/  / /___ _/ /   / /  / /_/ /  /_/  \n");
+		printf("         |____//_/  |_|/_____//_/  |_|/____/ /_/  /_/ |_| |____/   /_/    /_____//___/  /_/   |____/  (_)   \n");
+		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+		sleep(1); // delay de 1 segundo
+	} while(nome[0] != '0' && senha[0] != '0');
 }
 //-----------------------------------------------------------------------------------------------------------
 void remover() { // vai listar os usuarios e pedir pro usuario escolher qual ele quer remover
-    char opcao;
-    int numero;
+    int numero, opcao;
     do{
+    	organizanomes();
 	    system("cls");
+	    textcolor(WHITE);
+	    printf("Envie 0 para voltar.\n");
 	    textcolor(RED);
-	    printf("\n				      ____   ______ __  ___ ____  _    __ ______ ____ \n");
+	    printf("				      ____   ______ __  ___ ____  _    __ ______ ____ \n");
 	    printf("				     / __ | / ____//  |/  // __ || |  / // ____// __ |\n");
 	    printf("				    / /_/ // __/  / /|_/ // / / /| | / // __/  / /_/ /\n");
 	    printf("				   / _  _// /___ / /  / // /_/ / | |/ // /___ / _  _/ \n");
 	    printf("				  /_/ |_|/_____//_/  /_/ |____/  |___//_____//_/ |_|  \n");
 	    
-		if (arquivo == NULL){ // c nao tiver arquivo ele fala que nao tem arquivo e pede pra voltar
-	    	arquivo = fopen("Usuarios.txt", "r");
-	    	gotoxy(51,16);
-	    	printf("O arquivo n„o existe.\n");
-	    	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	    arquivo = fopen("Usuarios.txt", "r");
+		int c = fgetc(arquivo);  // L√™ o primeiro caractere do arquivo
+		if (c == EOF){ // c nao tiver nada no arquivo ele fala que nao tem nada e pede pra voltar
+	    	gotoxy(47,16);
 	    	textcolor(WHITE);
+	    	printf("Nenhum usu√°rio cadastrado.\n");
+	    	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n");
 	    	printf("Pressione ENTER para voltar...");
 	    	getch();
 	    	fclose(arquivo);
@@ -265,17 +277,18 @@ void remover() { // vai listar os usuarios e pedir pro usuario escolher qual ele
     	}
     	
     	do{
-    		printf("\n\n\n\nN˙mero para remover: "); // pede para o usuario digitar um numero para excluir
+    		printf("\n\n\n\nN√∫mero para remover: "); // pede para o usuario digitar um numero para excluir
     		scanf("%d",&numero);
     	} while(numero > tot);
     	
     	if(numero == 0) return;
-    	else {
-    		for(int x = numero-1; x < tot-1; x++){
-	    		strcpy(nomes[x], nomes[x+1]);
-	    		strcpy(senhas[x], senhas[x+1]);
-	    	}
+    	
+		for(int x = numero-1; x < tot-1; x++){
+			// aqui ele vai tirar o usario que quer ser removido, fznd os que estao em cima vir pra baixo
+    		strcpy(nomes[x], nomes[x+1]);
+    		strcpy(senhas[x], senhas[x+1]);
     	}
+    	
     	tot--;
 		system("cls");
 		textcolor(GREEN);
@@ -288,32 +301,30 @@ void remover() { // vai listar os usuarios e pedir pro usuario escolher qual ele
 		textcolor(WHITE);
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		sleep(1);
-		textcolor(WHITE);
-		printf("Deseja continuar(S/N)? ");
-		opcao = getch();
-    } while (toupper(opcao) != 'N');
+    } while (numero != 0);
 }
 //-----------------------------------------------------------------------------------------------------------
 void listar(){ // listar os usuarios
-	char linha[20];
-    int i = 0, y = 12, numero, z = 0;
+	char t;
 	system("cls");
 	textcolor(MAGENTA);
-	printf("\n                                  __  __ _____  __  __ ___     ____   ____ ____  _____\n");
+	printf("                                  __  __ _____  __  __ ___     ____   ____ ____  _____\n");
 	printf("                                 / / / // ___/ / / / //   |   / __ | /  _// __ |/ ___/\n");
 	printf("                                / / / / |__ | / / / // /| |  / /_/ / / / / / / /|__ | \n");
 	printf("                               / /_/ / ___/ // /_/ // ___ | / _  _/_/ / / /_/ /___/ / \n");
 	printf("                               |____/ /____/ |____//_/  |_|/_/ |_|/___/ |____//____/  \n");
-	if (arquivo == NULL){ // c nao tiver arquivo ele fala que nao tem arquivo e pede pra voltar
-    	arquivo = fopen("Usuarios.txt", "r");
-		gotoxy(51,16);
-    	printf("O arquivo n„o existe.\n");
-    	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	arquivo = fopen("Usuarios.txt", "r");
+	int c = fgetc(arquivo);  // L√™ o primeiro caractere do arquivo
+    if (c == EOF && tot == 0) { // c nao tiver nada no arquivo ele fala que nao tem nada e pede pra voltar
+    	gotoxy(47,16);
     	textcolor(WHITE);
+    	printf("Nenhum usu√°rio cadastrado.\n");
+    	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n");
     	printf("Pressione ENTER para voltar...");
     	getch();
     	fclose(arquivo);
-	} 
+    	return;
+	}
 	
 	else{
 		textcolor(WHITE);
@@ -324,16 +335,15 @@ void listar(){ // listar os usuarios
 		gotoxy(60,12);
 		printf("|");
 		
-		for(i = 0; i < tot; i++){ // vai passar por todos os nomes que tem cadastrados
-        	gotoxy(41,y);
-    		for(z = 0; z < strlen(nomes[i]); z++){ //vai pegar caracter por caracter e descriptografar no nome
+		for(int i = 0; i < tot; i++){ // vai passar por todos os nomes que tem cadastrados
+        	gotoxy(41,12 + i);
+    		for(int z = 0; z < strlen(nomes[i]); z++){ //vai pegar caracter por caracter e descriptografar no nome
         		printf("%c", nomes[i][z] - SHIFT);
 			}
-        	gotoxy(60,y);
+        	gotoxy(60,12 + i);
 			printf("|");
-			gotoxy(67,y);
+			gotoxy(67,12 + i);
 			printf("%s", senhas[i]);
-			y++;
     	}
 
 		gotoxy(1,25);
@@ -343,122 +353,123 @@ void listar(){ // listar os usuarios
 }
 //-----------------------------------------------------------------------------------------------------------
 void editar(){ // editar os usuarios
-	char linha[100], sair;
-    int i = 1, y = 12, numero, z = 0, opcao = 0;
+	char t;
+    int numero;
     do{
-    arquivo = fopen("Usuarios.txt", "r");
-    textcolor(YELLOW);
-    system("cls");
-	printf("\n                                          ______ ____   ____ ______ ___     ____ \n");
-	printf("                                         / ____// __ | /  _//_  __//   |   / __ |\n");
-	printf("                                        / __/  / / / / / /   / /  / /| |  / /_/ /\n");
-	printf("                                       / /___ / /_/ /_/ /   / /  / ___ | / _  _/ \n");
-	printf("                                      /_____//_____//___/  /_/  /_/  |_|/_/ |_|  \n");
-	if (arquivo == NULL){ // c nao tiver arquivo ele fala que nao tem arquivo e pede pra voltar
-    	gotoxy(51,16);
-    	printf("O arquivo n„o existe.\n");
-    	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    	textcolor(WHITE);
-    	printf("Pressione ENTER para voltar...");
-    	getch();
-	} 
-	
-	else{
-		textcolor(WHITE);
-	    gotoxy(47,10);
-		printf("NOME         |         SENHA\n");
-		gotoxy(60,11);
-		printf("|");
-		gotoxy(60,12);
-		printf("|");
-		for(i = 0; i < tot; i++){ // vai passar por todos os nomes que tem cadastrados
-			gotoxy(36,y);
-			printf("%d - ", i + 1); // vai contar as linhas
-       	 	gotoxy(41,y);
-    		for(z = 0; z < strlen(nomes[i]); z++){ //vai pegar caracter por caracter e descriptografar no nome
-        		printf("%c", nomes[i][z] - SHIFT);
-			}
-        	gotoxy(60,y);
-			printf("|");
-			gotoxy(67,y);
-			printf("%s", senhas[i]);
-			y++;
-    	}
-    	fclose(arquivo);
-    	printf("\n\n\n\n N˙mero para editar: "); // pede para o usuario digitar um numero para excluir
-    	scanf("%d",&numero);
-    	if(numero == 0) return;
-    	
-    	textcolor(YELLOW);
     	system("cls");
-    	printf("\n                                          ______ ____   ____ ______ ___     ____ \n");
+    	organizanomes();
+    	textcolor(WHITE);
+    	printf("Envie 0 para voltar.\n");
+	    textcolor(YELLOW);
+		printf("\n                                          ______ ____   ____ ______ ___     ____ \n");
 		printf("                                         / ____// __ | /  _//_  __//   |   / __ |\n");
 		printf("                                        / __/  / / / / / /   / /  / /| |  / /_/ /\n");
 		printf("                                       / /___ / /_/ /_/ /   / /  / ___ | / _  _/ \n");
 		printf("                                      /_____//_____//___/  /_/  /_/  |_|/_/ |_|  \n");
-		textcolor(WHITE);
-		gotoxy(50,15);
-		printf("1 - Editar o nome\n");
-		gotoxy(50,16);
-		printf("2 - Editar a senha\n");
-		gotoxy(50,17);
-		printf("3 - Editar o nome e senha\n");
-		gotoxy(1,25);
-		do{
-			printf("\n\n\n\n\nOpÁ„o: ");
-			scanf("%d",&opcao);
-		} while (opcao != 1 && opcao != 2 && opcao != 3);
 		
-		if(numero == 0) return;
-    	else editarnumero(numero, opcao);
+		arquivo = fopen("Usuarios.txt", "r");
+		int c = fgetc(arquivo);  // L√™ o primeiro caractere do arquivo
+    	if (c == EOF && tot == 0) { // c nao tiver nada no arquivo ele fala que nao tem nada e pede pra voltar
+	    	gotoxy(47,16);
+	    	textcolor(WHITE);
+	    	printf("Nenhum usu√°rio cadastrado.\n");
+	    	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	    	printf("Pressione ENTER para voltar...");
+	    	getch();
+	    	fclose(arquivo);
+	    	return;
 		}
-		textcolor(WHITE);
-		printf("Deseja continuar(S/N)? ");
-		scanf(" %c",&sair);
-    } while (toupper(sair) != 'N');
+		
+		else{
+			textcolor(WHITE);
+		    gotoxy(47,10);
+			printf("NOME         |         SENHA\n");
+			gotoxy(60,11);
+			printf("|");
+			gotoxy(60,12);
+			printf("|");
+			
+			for(int i = 0; i < tot; i++){ // vai passar por todos os nomes que tem cadastrados
+				gotoxy(36,12 + i);
+				printf("%d - ", i + 1); // vai contar as linhas
+				gotoxy(41,12 + i);
+				
+	    		for(int z = 0; z < strlen(nomes[i]); z++){ //vai pegar caracter por caracter e descriptografar no nome
+	        		printf("%c", nomes[i][z] - SHIFT);
+				}
+				
+	        	gotoxy(60,12 + i);
+				printf("|");
+				gotoxy(67,12 + i);
+				printf("%s", senhas[i]);
+	    	}
+	    	
+
+	    	printf("\n\n\n\nN√∫mero para editar (0 para voltar): "); // pede para o usuario digitar um numero para excluir
+	    	scanf("%d",&numero);
+	    	
+	    	if(numero == 0) return;
+	    	editarnumero(numero);
+		}
+    } while (numero != 0);
 }
 //-----------------------------------------------------------------------------------------------------------
-void editarnumero(int n, int o){ // vai enviar o usuario que vai ser editado, e a opcao que foi escolhido
-	FILE *temp;
-    char linha[100], novonome[20], novasenha[15], cripnome[20], cripsenha[15];;
-    int i = 1;
-    arquivo = fopen("Usuarios.txt", "r");
-    temp = fopen("temp.txt", "a+");
-    for(i = 15; i < 18; i++){
+void editarnumero(int n){ // vai enviar o usuario que vai ser editado, e a opcao que foi escolhido
+    char novonome[20], novasenha[15];
+	int i, o;
+	system("cls");
+	printf("Envie 0 para voltar.\n");
+	textcolor(YELLOW);
+	printf("                                          ______ ____   ____ ______ ___     ____ \n");
+	printf("                                         / ____// __ | /  _//_  __//   |   / __ |\n");
+	printf("                                        / __/  / / / / / /   / /  / /| |  / /_/ /\n");
+	printf("                                       / /___ / /_/ /_/ /   / /  / ___ | / _  _/ \n");
+	printf("                                      /_____//_____//___/  /_/  /_/  |_|/_/ |_|  \n");
+	textcolor(WHITE);
+	gotoxy(50,15);
+	printf("1 - Editar o nome\n");
+	gotoxy(50,16);
+	printf("2 - Editar a senha\n");
+	gotoxy(50,17);
+	printf("3 - Editar o nome e senha\n");
+	gotoxy(50,18);
+	printf("0 - Voltar\n");
+	gotoxy(1,25);
+	do{
+		printf("\n\n\n\n\nOp√ß√£o: ");
+		scanf("%d",&o);
+	} while (o != 1 && o != 2 && o != 3 && o != 0);
+	
+	if(o == 0) return;
+
+    for(int i = 15; i < 19; i++){
     	gotoxy(40,i);
     	printf("                                                                             \n"); // vai limpar a parte de baixo do editar
 	}
+	
 	gotoxy(1,25);
     printf("\n\n\n\n\n          "); // apaga a opcao
     
 	switch (o){
-		case 1:
+		case 1: // nome
     		gotoxy(42,15);
     		printf("Novo nome: ");
-    		gotoxy(53,15);
     		getchar();
     		do{
 				gotoxy(53,15);
     			printf("                                                              "); //limpa o campo
     			gotoxy(53,15);
     			gets(novonome);
-			} while (strlen(novonome) == 0 || strlen(novonome) >= 20); // repete atÈ ter menos q 20 caracter e mais q 0
-    		i=1;
-    		while (fgets(linha, sizeof(linha), arquivo)) { //vai pegar os usuarios do Usuarios.txt e armazenar no arquivo temp
-        		if (i != n){ // c for dirente do numero que a pessoa escolheu, ele vai armazenar normalmente no temp
-					fputs(linha, temp);
-					fgets(linha, sizeof(linha), arquivo); // aqui È a senha
-					fputs(linha, temp);
-        		} else{ // c for o numero que o cara quer escolher vai criptografar o nome com oq a pessoa escolheu
-					for(int y = 0; y < strlen(novonome); y++){
-						cripnome[y] = novonome[y] + SHIFT;
-					}
-					fprintf(temp,"%s\n",cripnome);
-					fputs(linha, temp);
-					fgets(linha, sizeof(linha), arquivo);
-				}
-        		i++;
-    		}
+			} while (strlen(novonome) < 0 || strlen(novonome) > 20); // repete at√© ter menos q 20 caracter e mais q 0
+    		
+			if(novonome[0] == '0') return; // c o cara enviar 0 ele volta
+			
+			for (i = 0; i < strlen(novonome); i++) {
+		        novonome[i] = novonome[i] + SHIFT;
+		    }
+		    novonome[i] = '\0';
+			
+			strcpy(nomes[n-1], novonome); // vai armazenar o novo nome criptografado no vetor que foi selecionado
     		break;
     	case 2: // senha
     		gotoxy(41,15);
@@ -470,28 +481,21 @@ void editarnumero(int n, int o){ // vai enviar o usuario que vai ser editado, e 
 				gotoxy(53,15);
     			gets(novasenha);
         		if(verificasenha(novasenha) == 0){ // c nao tiver os quisitos ele vai aparecer a mensagem
-					gotoxy(22,17);
+					gotoxy(7,16);
 					textcolor(RED);
-    				printf("Deve conter um caracter especial, um numero, uma letra maiuscula e uma minuscula.");
-    				textcolor(WHITE);
+	    			printf("Deve conter entre 8 a 12, caracteres um caracter especial, um numero, uma letra maiuscula e uma minuscula.");
+	    			textcolor(WHITE);
 	   			}
     		} while (verificasenha(novasenha) == 0);
-    		i=1;
-    		while (fgets(linha, sizeof(linha), arquivo)) { //vai pegar os usuarios do Usuarios.txt e armazenar no arquivo temp
-        		if (i != n){ // c for dirente do numero que a pessoa escolheu, ele vai armazenar normalmente no temp
-					fputs(linha, temp);
-					fgets(linha, sizeof(linha), arquivo); // aqui È a senha
-					fputs(linha, temp);
-        		} else{ // c for o numero que o cara quer escolher vai criptografar a senha com oq a pessoa escolheu
-					fputs(linha, temp);
-					for(int y = 0; y < strlen(novasenha); y++){
-						cripsenha[y] = novasenha[y] + 52;
-					}
-					fprintf(temp,"%s\n",cripsenha);
-					fgets(linha, sizeof(linha), arquivo);
-				}
-        		i++;
-    		}
+    		
+			if(novasenha[0] == '0') return;
+    		
+			for (i = 0; i < strlen(novasenha); i++) {
+		        novasenha[i] = novasenha[i] + SHIFT;
+		    }
+		    novasenha[i] = '\0';
+    		
+    		strcpy(senhas[n-1], novasenha); // // vai armazenar a nova senha criptografada no vetor que foi selecionado
     		break;
     	case 3: // nome e senha
     		gotoxy(42,15);
@@ -504,7 +508,7 @@ void editarnumero(int n, int o){ // vai enviar o usuario que vai ser editado, e 
     			printf("                                                              "); //limpa o campo
     			gotoxy(53,15);
     			gets(novonome);
-			} while (strlen(novonome) == 0 || strlen(novonome) >= 20); // repete atÈ ter menos q 20 caracter e mais q 0
+			} while (strlen(novonome) == 0 || strlen(novonome) >= 20); // repete at√© ter menos q 20 caracter e mais q 0
 			
 			do{ // fica repitindo a senha no mesmo lugar
 				gotoxy(53,16);
@@ -512,36 +516,33 @@ void editarnumero(int n, int o){ // vai enviar o usuario que vai ser editado, e 
 				gotoxy(53,16);
     			gets(novasenha);
         		if(verificasenha(novasenha) == 0){ // c nao tiver os quisitos ele vai aparecer a mensagem
-					gotoxy(22,17);
+					gotoxy(7,17);
 					textcolor(RED);
-    				printf("Deve conter um caracter especial, um numero, uma letra maiuscula e uma minuscula.");
-    				textcolor(WHITE);
+	    			printf("Deve conter entre 8 a 12, caracteres um caracter especial, um numero, uma letra maiuscula e uma minuscula.");
+	    			textcolor(WHITE);
 	   			}
     		} while (verificasenha(novasenha) == 0);
-    		i=1;
-    		while (fgets(linha, sizeof(linha), arquivo)) { //vai pegar os usuarios do Usuarios.txt e armazenar no arquivo temp
-        		if (i != n){ // c for dirente do numero que a pessoa escolheu, ele vai armazenar normalmente no temp
-					fputs(linha, temp);
-					fgets(linha, sizeof(linha), arquivo); // aqui È a senha
-					fputs(linha, temp);
-        		} else{ // c for o numero que o cara quer escolher vai criptografar a senha e o nome com oq a pessoa escolheu
-					for(int y = 0; y < strlen(novonome); y++){
-						cripnome[y] = novonome[y] + 52;
-					}
-					for(int y = 0; y < strlen(novasenha); y++){
-						cripsenha[y] = novasenha[y] + 52;
-					}
-					fprintf(temp,"%s\n%s\n",cripnome,cripsenha);
-					fgets(linha, sizeof(linha), arquivo);
-				}
-        		i++;
-    		}
+    		// c o cara enviar 0 ele retorna
+    		if(novonome[0] == '0') return;
+    		if(novasenha[0] == '0') return;
+    		
+    		// mema coisa da criptografia passada
+			for (i = 0; i < strlen(novonome); i++) {
+		        novonome[i] = novonome[i] + SHIFT;
+		    }
+		    novonome[i] = '\0';
+		    
+			for (i = 0; i < strlen(novasenha); i++) {
+		        novasenha[i] = novasenha[i] + SHIFT;
+		    }
+		    novasenha[i] = '\0';
+		    // armazena os dois
+    		strcpy(nomes[n-1], novonome);
+    		strcpy(senhas[n-1], novasenha);
+    		
     		break;
 	}
-    fclose(temp);
-    fclose(arquivo);
-    remove("Usuarios.txt");
-    rename("temp.txt","Usuarios.txt"); // vai apaga a Usuarios atual e trocar pela temporaria que esta sem o usuario removido
+
 	system("cls");
 	textcolor(GREEN);
 	gotoxy(1,12);
@@ -553,11 +554,10 @@ void editarnumero(int n, int o){ // vai enviar o usuario que vai ser editado, e 
 	textcolor(WHITE);
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 	sleep(1);
-	armazenarnomes();
 }
 //-----------------------------------------------------------------------------------------------------------
-void creditos(){ // criadores (foi sÛ o fernando que fez kkk)
-	int o,i;
+void creditos(){ // criadores (foi s√≥ o fernando que fez kkk)
+	int o;
 	while(o != 48){
 		system("cls");
 		textcolor(CYAN);
@@ -576,7 +576,7 @@ void creditos(){ // criadores (foi sÛ o fernando que fez kkk)
 		gotoxy(50,19);
 		printf("0 - Voltar");
 		gotoxy(6,25);
-		printf("\n\n\n\n\nOpÁ„o: ");
+		printf("\n\n\n\n\nOp√ß√£o: ");
 		o = getch();
 		printf("%d",o);
 		switch (o){
@@ -592,7 +592,7 @@ void creditos(){ // criadores (foi sÛ o fernando que fez kkk)
 				textcolor(WHITE);
 				printf("				  RA: 24038237-2\n");
 				printf("			    Linkedin: https://www.linkedin.com/in/fernando-queiroz-6023a2304/\n");
-				printf("			      GitHub: https://github.com/ferqueiroz\n");
+				printf("			      GitHub: https://github.com/ferqueiroz\n"); // AEP parte por parte la
 				printf("			   Instagram: @_ferqueiroz\n");
 				gotoxy(1,25);
 				printf("\n\n\n\n\nAperte ENTER para voltar...");
@@ -649,14 +649,14 @@ void menu(){ // menu
 	printf("                                            /_/  /_//_____//_/ |_/ |____/   \n");
 	printf("\n\n\n\n\n\n\n");
 	textcolor(WHITE);
-	printf("						1 - Criar usu·rios\n");
-	printf("						2 - Remover usu·rios\n");
-	printf("						3 - Editar usu·rios\n");
-	printf("						4 - Listar usu·rios\n");
-	printf("						5 - CrÈditos\n");
-	printf("						0 - Sair e salvar\n");
+	printf("						1 - Criar usu√°rios\n");
+	printf("						2 - Remover usu√°rios\n");
+	printf("						3 - Editar usu√°rios\n");
+	printf("						4 - Listar usu√°rios\n");
+	printf("						5 - Cr√©ditos\n");
+	printf("						0 - Sair e salvar\n"); // precisa enviar o 0 para salvar as altera√ß√µes, se n√£o nao salva
 	printf("\n\n\n\n\n\n\n\n\n\n");
-	printf("OpÁ„o: ");
+	printf("Op√ß√£o: ");
 	op = getche();
 	switch (op){
 		case '1':
